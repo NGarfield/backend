@@ -22,11 +22,12 @@ def SubjectListCreateAPIView(request):
 
 @csrf_exempt
 def ssoAPI(request):
-    if request.method == "POST":
-        mydata = json.loads(request.body)
-        url = mydata['url']
-        request.session['session_key'] = mydata['session']
-    return redirect("/api/login/")
+    if request.method == "GET":
+        url = request.GET['url']
+        session = request.GET['session']
+        print(url)
+        request.session['session_key'] = session
+    return JsonResponse({"url":"http://127.0.0.1:8000/api/login/"})
 
 @csrf_exempt
 def login(request):
@@ -42,7 +43,7 @@ def login(request):
                                 token = token)
                 request.session[request.session['session_key']] = token
                 user.save()
-            return redirect(url)
+            return redirect("http://127.0.0.1:8080/")
 
     return render(request,'login.html',{'form':LoginForm})
 
@@ -51,7 +52,27 @@ def sessionTotoken(request):
     if request.method == "POST":
         mydata = json.loads(request.body)
 
-    return HttpResponse(request.session[mydata['session']])
+    return JsonResponse({"token":request.session[mydata['session']]})
 
 def random_char(y):
     return ''.join(random.choice(string.ascii_letters+"0123456789") for x in range(50))
+
+@csrf_exempt
+def varidateToken(request):
+    if request.method == "POST":
+        mydata = json.loads(request.body)
+        data = UserLogin.objects.filter(token=mydata['token']).first()
+        if(data):
+            return JsonResponse({"state" : "200"})
+        
+        return JsonResponse({"state" : "402"})
+
+@csrf_exempt
+def getUser(requset):
+    if requset.method == "POST":
+        mydata = json.loads(requset.body)
+        data =  UserLogin.objects.filter(token=mydata['token']).first()
+        data1 = list(data.values())
+        return JsonResponse({"id_user" : data1},safe=False)
+
+
