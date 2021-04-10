@@ -62,7 +62,7 @@ def random_char(y):
     return ''.join(random.choice(string.ascii_letters+"0123456789") for x in range(50))
 
 @csrf_exempt
-def varidateToken(request):
+def validateToken(request):
     if request.method == "POST":
         mydata = json.loads(request.body)
         data = UserLogin.objects.filter(token=mydata['token']).first()
@@ -75,7 +75,7 @@ def varidateToken(request):
 def getUser(requset):
     if requset.method == "POST":
         mydata = json.loads(requset.body)
-        data =  UserLogin.objects.filter(token=mydata['token']).first()
+        data =  UserLogin.objects.filter(token=mydata['token'])
         data1 = list(data.values())
         return JsonResponse({"id_user" : data1},safe=False)
 
