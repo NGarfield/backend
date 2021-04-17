@@ -1,6 +1,6 @@
 from django.urls import path
 from regguide.api.views import (SubjectListCreateAPIView,login,ssoAPI,sessionTotoken,
-                                validateToken,getUser,)
+                                validateToken,getUser,getInfoStudent)
 
 urlpatterns = [
     path("subjects/",SubjectListCreateAPIView, name="subject-list"),
@@ -9,6 +9,7 @@ urlpatterns = [
     path("sessiontotoken/",sessionTotoken, name="sessionTotoken"),
     path("validatetoken/",validateToken, name="validateToken"),
     path("getuser/",getUser, name="getUser"),
+    path("getinfostudent/",getInfoStudent, name="getInfoStudent"),
 
     
 ]

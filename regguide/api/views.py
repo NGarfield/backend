@@ -1,5 +1,5 @@
 from rest_framework import generics
-from regguide.models import Subject,UserLogin
+from regguide.models import Subject,UserLogin,Student
 import json
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render,redirect
@@ -78,5 +78,15 @@ def getUser(requset):
         data =  UserLogin.objects.filter(token=mydata['token'])
         data1 = list(data.values())
         return JsonResponse({"id_user" : data1},safe=False)
+
+@csrf_exempt
+def getInfoStudent(requset):
+    if requset.method == "POST":
+        mydata = json.loads(requset.body)
+        data =  UserLogin.objects.filter(token=mydata['token'])
+        data_student = Student.objects.filter(id_student=data[0])
+        data_student1 = list(data_student.values())
+        return JsonResponse({"student":data_student1},safe=False)
+
 
 

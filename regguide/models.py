@@ -38,7 +38,10 @@ class Student(models.Model):
     credit = models.IntegerField()
     faculty_id = models.ForeignKey(Faculty,on_delete=models.CASCADE)
     deparment_id = models.ForeignKey(Deparment, on_delete=models.CASCADE)
-    image_student = models.TextField() 
+    image_student = models.TextField()
+    level_education = models.CharField(max_length=50,blank=True)
+    name_education = models.CharField(max_length=100,blank=True)
+    email = models.CharField(max_length=100,blank=True)
 
     def __str__(self):
         return f"{self.id_student} {self.student_name}"
