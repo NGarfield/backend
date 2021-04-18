@@ -12,8 +12,9 @@ from django.views.decorators.csrf import csrf_exempt
 #     queryset = Subject.objects.all()
 #     serializer_class = SubjectSerializers
 url = ""
-sessions = ""
 mytoken = {}
+sessions = ""
+session = ""
 
 def SubjectListCreateAPIView(request):
     if request.method=="GET":
@@ -29,7 +30,7 @@ def ssoAPI(request):
         url = request.GET['url']
         sessions = request.GET['session']
         
-    return JsonResponse({"url":"http://127.0.0.1:8000/api/login/"})
+    return JsonResponse({"url":"http://127.0.0.1:8000/api/login/?session=" + sessions})
 
 @csrf_exempt
 def login(request):
@@ -43,17 +44,22 @@ def login(request):
                 user = UserLogin(username = data.username,
                                 password = data.password,
                                 token = token)
-                global sessions,mytoken
-                mytoken.update({sessions : token}) 
+                global session,mytoken
+                
+                mytoken[session] = token
                 user.save()
             
             else:
-                mytoken.update({sessions : data.token}) 
+                print(session+"555")
+                mytoken[session] = data.token
 
             return redirect("http://127.0.0.1:8080/")
-
-
-    return render(request,'login.html',{'form':LoginForm})
+    
+    if request.method=="GET":
+        session = request.GET['session']
+        print(session)
+        mytoken.update({session : ""})
+        return render(request,'login.html',{'form':LoginForm})
 
 @csrf_exempt
 def sessionTotoken(request):
