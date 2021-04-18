@@ -1,10 +1,10 @@
 from rest_framework import generics
-from regguide.models import Subject,UserLogin,Student
+from regguide.models import Subject,UserLogin,Student,Faculty,Deparment,Calender
 import json
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render,redirect
 from .forms import LoginForm
-import random,string
+import random,string,datetime
 from django.views.decorators.csrf import csrf_exempt
 
 # class SubjectListCreateAPIView(generics.ListCreateAPIView):
@@ -76,8 +76,10 @@ def getUser(requset):
     if requset.method == "POST":
         mydata = json.loads(requset.body)
         data =  UserLogin.objects.filter(token=mydata['token'])
+        data_student = Student.objects.filter(id_student=data[0])
+        data_student1 = data_student[0].student_name+" "+data_student[0].student_surname
         data1 = list(data.values())
-        return JsonResponse({"id_user" : data1},safe=False)
+        return JsonResponse({"id_user" : data1,"name" : data_student1},safe=False)
 
 @csrf_exempt
 def getInfoStudent(requset):
@@ -86,7 +88,18 @@ def getInfoStudent(requset):
         data =  UserLogin.objects.filter(token=mydata['token'])
         data_student = Student.objects.filter(id_student=data[0])
         data_student1 = list(data_student.values())
+        name_faculty = Faculty.objects.filter(faculty_id = data_student1[0]['faculty_id_id'])
+        name_faculty1 = list(name_faculty.values())
+        data_student1[0].update({"faculty" : name_faculty1[0]['faculty_name']})
+        name_deparment = Deparment.objects.filter(deparment_id = data_student1[0]['deparment_id_id'])
+        name_deparment1 = list(name_deparment.values())
+        data_student1[0].update({"deparment" : name_deparment1[0]['deparment_name']})
         return JsonResponse({"student":data_student1},safe=False)
 
-
-
+def getCalender(requset):
+    if requset.method == "GET":
+        timenow = datetime.datetime.now()
+        time30d = datetime.datetime.now() + datetime.timedelta(days=150)
+        data = Calender.objects.filter(end_date__range=(timenow,time30d))
+        data_date = list(data.values())
+        return JsonResponse({"date":data_date},safe=False)

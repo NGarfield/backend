@@ -42,6 +42,7 @@ class Student(models.Model):
     level_education = models.CharField(max_length=50,blank=True)
     name_education = models.CharField(max_length=100,blank=True)
     email = models.CharField(max_length=100,blank=True)
+    campus = models.CharField(max_length=100,blank=True)
 
     def __str__(self):
         return f"{self.id_student} {self.student_name}"
