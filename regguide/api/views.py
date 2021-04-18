@@ -44,10 +44,14 @@ def login(request):
                                 password = data.password,
                                 token = token)
                 global sessions,mytoken
-                mytoken = {sessions : token}
+                mytoken.update({sessions : token}) 
                 user.save()
-            mytoken = {sessions : data.token}
+            
+            else:
+                mytoken.update({sessions : data.token}) 
+
             return redirect("http://127.0.0.1:8080/")
+
 
     return render(request,'login.html',{'form':LoginForm})
 
@@ -56,7 +60,8 @@ def sessionTotoken(request):
     global mytoken
     if request.method == "POST":
         mydata = json.loads(request.body)
-    return JsonResponse({"token":mytoken[sessions]})
+    return JsonResponse({"token":mytoken.get(mydata['session'])})
+    
 
 def random_char(y):
     return ''.join(random.choice(string.ascii_letters+"0123456789") for x in range(50))
