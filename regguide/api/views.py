@@ -46,19 +46,19 @@ def login(request):
                                 token = token)
                 global session,mytoken
                 
-                mytoken[session] = token
+                mytoken[request.session['session']] = token
                 user.save()
             
             else:
-                print(session+"555")
-                mytoken[session] = data.token
+                print(request.session['session']+"555")
+                mytoken[request.session['session']] = data.token
 
             return redirect("http://127.0.0.1:8080/")
     
     if request.method=="GET":
-        session = request.GET['session']
-        print(session)
-        mytoken.update({session : ""})
+        request.session['session'] = request.GET['session']
+        print(request.session['session'])
+        mytoken.update({request.session['session'] : ""})
         return render(request,'login.html',{'form':LoginForm})
 
 @csrf_exempt
