@@ -92,4 +92,11 @@ class RegisterSubject(models.Model):
     def __str__(self):
         return f"{self.student} {self.subject}"
 
+class CourseSubject(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    deparment = models.ForeignKey(Deparment, on_delete=models.CASCADE)
+    group = models.IntegerField()
+    def __str__(self):
+        return f"{self.subject}"
+
 

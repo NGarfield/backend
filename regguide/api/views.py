@@ -1,5 +1,7 @@
 from rest_framework import generics
-from regguide.models import Subject,UserLogin,Student,Faculty,Deparment,Calender
+from regguide.models import (Subject,UserLogin,Student,Faculty,Deparment
+                            ,Calender,PreSubject,CourseSubject,RegisterSubject,
+                            PreSubject)
 import json
 from django.http import HttpResponse,JsonResponse
 from django.shortcuts import render,redirect
@@ -114,3 +116,97 @@ def getCalender(requset):
         data = Calender.objects.filter(end_date__range=(timenow,time30d))
         data_date = list(data.values())
         return JsonResponse({"date":data_date},safe=False)
+
+
+@csrf_exempt
+def getCourseStudent(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        userlogin = UserLogin.objects.filter(token=token).first()
+        data_allsubject = [{
+          "key": 11,
+          "text": "ปีการศึกษาปีที่ 1/1",
+          "isGroup": "true",
+        },
+        {
+          "key": 12,
+          "text": "ปีการศึกษาปีที่ 1/2",
+          "isGroup": "true",
+        },
+        {
+          "key": 21,
+          "text": "ปีการศึกษาปีที่ 2/1",
+          "isGroup": "true",
+        },
+        {
+          "key": 22,
+          "text": "ปีการศึกษาปีที่ 2/2",
+          "isGroup": "true",
+        },
+        {
+          "key": 31,
+          "text": "ปีการศึกษาปีที่ 3/1",
+          "isGroup": "true",
+        },
+        {
+          "key": 32,
+          "text": "ปีการศึกษาปีที่ 3/2",
+          "isGroup": "true",
+        },
+        {
+          "key": 41,
+          "text": "ปีการศึกษาปีที่ 4/1",
+          "isGroup": "true",
+        },
+        {
+          "key": 42,
+          "text": "ปีการศึกษาปีที่ 4/2",
+          "isGroup": "true",
+        }]
+
+        student = Student.objects.filter(id_student=userlogin.username).first()
+        all_subject = CourseSubject.objects.filter(deparment=student.deparment_id)
+        for a in all_subject:
+            data_subject = {}
+            key = Subject.objects.filter(id_subject=a.subject.id_subject).first()
+            data_subject.update({"key" : key.id_subject})
+            data_subject.update({"name" : key.subjectName})
+            data_subject.update({"group" : a.group})
+            register = RegisterSubject.objects.filter(student=student,subject=key).first()
+            if(register):
+                if register.grade == "f" or register.grade == "F" :
+                    data_subject.update({"grade" : -1})
+                
+                else:
+                    data_subject.update({"grade" : 1})
+
+            else:
+                data_subject.update({"grade" : 0})
+
+            data_allsubject.append(data_subject)
+        
+        data_allsubject1 = list(data_allsubject)
+        return JsonResponse({"nodeDataArray" : data_allsubject1},safe=False)
+
+@csrf_exempt
+def getConditionSubject(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        userlogin = UserLogin.objects.filter(token=token).first()
+        all_presubject = []
+        student = Student.objects.filter(id_student=userlogin.username).first()
+        all_subject = CourseSubject.objects.filter(deparment=student.deparment_id)
+        for a in all_subject :
+            con = PreSubject.objects.filter(condition=a.subject.id_subject)
+            
+            if con :
+                for c in con :
+                    pre = {}
+                    pre.update({"from":a.subject.id_subject})
+                    pre.update({"to":c.subject.id_subject})
+                    all_presubject.append(pre)
+        
+        all_presubject1 = list(all_presubject)
+        return JsonResponse({"linkDataArray":all_presubject1},safe=False)
