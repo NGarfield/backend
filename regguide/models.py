@@ -78,7 +78,7 @@ class ConditionJSON(models.Model):
     deparment = models.ForeignKey(Deparment, on_delete=models.CASCADE)
     conditionJSON = models.TextField(default="")
     def __str__(self):
-        return self.deparment
+        return f"{self.deparment}"
     
 class UserLogin(models.Model):
     username = models.CharField(max_length=10,primary_key=True)
@@ -92,6 +92,8 @@ class RegisterSubject(models.Model):
     student = models.ForeignKey(Student,on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
     grade = models.CharField(max_length=1)
+    yaer = models.IntegerField(null=True)
+    term = models.IntegerField(null=True)
     def __str__(self):
         return f"{self.student} {self.subject}"
 

@@ -1,6 +1,6 @@
 from rest_framework import generics
 from regguide.models import (Subject, UserLogin, Student, Faculty, Deparment, Calender, PreSubject, CourseSubject, RegisterSubject,
-                             PreSubject)
+                             PreSubject,ConditionJSON,DateSystem)
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -188,9 +188,22 @@ def getCourseStudent(requset):
             data_subject.update({"name": key.subjectName})
             data_subject.update({"group": a.group})
             register = RegisterSubject.objects.filter(
-                student=student, subject=key).first()
-            if(register):
-                if register.grade == "f" or register.grade == "F":
+                student=student, subject=key)
+
+            if(len(register)>1):
+                boo = True
+                for re in register:
+                    if re.grade != "f" and  re.grade !="F":
+                        data_subject.update({"grade": 1})
+                        boo = False
+                        break
+                
+                if boo :
+                    data_subject.update({"grade": -1})
+                
+
+            elif(register):
+                if register[0].grade == "f" or register[0].grade == "F":
                     data_subject.update({"grade": -1})
 
                 else:
@@ -228,8 +241,16 @@ def getConditionSubject(requset):
         all_presubject1 = list(all_presubject)
         return JsonResponse({"linkDataArray": all_presubject1}, safe=False)
 
+@csrf_exempt
+def getAL(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        algorithm(token)
+        return HttpResponse("k")
 
-def algorithm():
+
+def algorithm(token):
     class Subject():
 
         def __init__(self, id_sub, name, weight, stet,
@@ -254,8 +275,10 @@ def algorithm():
 
 
     allSub = []
-
-    inputCourseJSON = input("input :")
+    userlogin = UserLogin.objects.filter(token=token).first()
+    student = Student.objects.filter(id_student=userlogin.username).first()
+    con = ConditionJSON.objects.filter(deparment=student.deparment_id).first()
+    inputCourseJSON = con.conditionJSON
     courseJSON = json.loads(inputCourseJSON)
     for s in courseJSON:
         if len(s["condition"]) > 0 and s["condition"][0] == "*":
@@ -265,12 +288,19 @@ def algorithm():
         allSub.append(Subject(s["id"], s["name"], s["weight"], "notpass", s["condition"], s["year"], [
                     s["team1"], s["team2"], s["team3"]], s["credit"], consub))
 
-    inputJSONPass = input("inputPass :")
-    JSONPass = json.loads(inputJSONPass)
-    currentYear = int(JSONPass["current"]["year"])
-    currentTerm = int(JSONPass["current"]["term"])
+    
+    dateSystem = DateSystem.objects.all().first()
+    currentYear = dateSystem.system_yaer - student.yaer_of_entry + 1
+    currentTerm = dateSystem.system_term
 
-    for i in JSONPass["subject"]:
+    RegisSub = RegisterSubject.objects.filter(student=student)
+    JSONPass = []
+    for r in RegisSub:
+        if r.grade != "f" and r.grade != "F":
+            JSONPass.append({"id":r.subject.id_subject})
+        
+
+    for i in JSONPass:
         for j in allSub:
             if i["id"] == j.id_sub:
                 j.stet = "pass"
@@ -300,15 +330,15 @@ def algorithm():
 
     notPassed.sort()
 
-    print("pass: ")
-    for i in passed:
-        txt = "{}(w={}),"
-        print(txt.format(i.id_sub, i.weight))
+    # print("pass: ")
+    # for i in passed:
+    #     txt = "{}(w={}),"
+    #     print(txt.format(i.id_sub, i.weight))
 
-    print("not pass: ")
-    for i in notPassed:
-        txt = "{}(w={}),"
-        print(txt.format(i.id_sub, i.weight))
+    # print("not pass: ")
+    # for i in notPassed:
+    #     txt = "{}(w={}),"
+    #     print(txt.format(i.id_sub, i.weight))
 
     countYear = currentYear
     kkk = 0
@@ -381,4 +411,5 @@ def algorithm():
             countTerm += 1
 
         countYear += 1
-    print(notPassed)
+    print("sdfsdfsdfs")    
+    print(arrRegis)
