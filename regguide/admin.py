@@ -10,7 +10,8 @@ from regguide.models import (Subject,
                             UserLogin,
                             ConditionJSON,
                             RegisterSubject,
-                            CourseSubject)
+                            CourseSubject,
+                            DateSystem)
 
 admin.site.register(Subject)
 admin.site.register(PreSubject)
@@ -24,3 +25,4 @@ admin.site.register(UserLogin)
 admin.site.register(ConditionJSON)
 admin.site.register(RegisterSubject)
 admin.site.register(CourseSubject)
+admin.site.register(DateSystem)

@@ -17,6 +17,7 @@ class PreSubject(models.Model):
 class Deparment(models.Model):
     deparment_id = models.CharField(max_length=10,primary_key=True)
     deparment_name = models.CharField(max_length=50)
+    total_credit = models.IntegerField(null=True)
     def __str__(self):
         return self.deparment_name
     
@@ -43,6 +44,8 @@ class Student(models.Model):
     name_education = models.CharField(max_length=100,blank=True)
     email = models.CharField(max_length=100,blank=True)
     campus = models.CharField(max_length=100,blank=True)
+    yaer_of_entry = models.IntegerField(blank=True, null=True)
+    term_of_entry = models.IntegerField(blank=True, null=True)
 
     def __str__(self):
         return f"{self.id_student} {self.student_name}"
@@ -99,4 +102,9 @@ class CourseSubject(models.Model):
     def __str__(self):
         return f"{self.subject}"
 
-
+class DateSystem(models.Model):
+    id_date = models.CharField(max_length=1,primary_key=True)
+    system_yaer = models.IntegerField()
+    system_term = models.IntegerField()
+    def __str__(self):
+        return f"{self.system_yaer} {self.system_term}"
