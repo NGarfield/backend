@@ -18,6 +18,7 @@ url = ""
 mytoken = {}
 sessions = ""
 session = ""
+date = DateSystem.objects.all().first()
 
 def SubjectListCreateAPIView(request):
     if request.method == "GET":
@@ -242,12 +243,13 @@ def getConditionSubject(requset):
         return JsonResponse({"linkDataArray": all_presubject1}, safe=False)
 
 @csrf_exempt
-def getAL(requset):
+def getGuide(requset):
     if requset.method == "POST":
         tokenjson = json.loads(requset.body)
         token = tokenjson['token']
-        algorithm(token)
-        return HttpResponse("k")
+        nodeSubject = algorithm(token)
+        nodeSubject1 = list(nodeSubject)
+        return JsonResponse({'nodeSubject':nodeSubject1}, safe=False)
 
 
 def algorithm(token):
@@ -292,9 +294,36 @@ def algorithm(token):
     dateSystem = DateSystem.objects.all().first()
     currentYear = dateSystem.system_yaer - student.yaer_of_entry + 1
     currentTerm = dateSystem.system_term
-
     RegisSub = RegisterSubject.objects.filter(student=student)
+    groupYaer = []
+    groupTerm = []
     JSONPass = []
+    arrRegis = []
+
+    boolBrake = False
+    for i in range(currentYear):
+        groupYaer.append({'key' : i+1 , 'isGroup' : 'true' ,'text' : 'ปีการศึกษาปีที่ '+str(i+1) , 'horiz': 'true'})
+        for y in range(3):
+            if i+1 == currentYear and y+1 == currentTerm:
+                boolBrake = True
+                break
+
+            register = RegisterSubject.objects.filter(student=student, yaer=date.system_yaer-(i+1), term=y+1)
+            
+            if register :
+                groupTerm.append({ 'key':str(i+1)+''+str(y+1), 'isGroup': 'true', 'text': "เทอม"+str(y+1), 'group': i+1 })
+                
+                for re in register:
+                    if re.grade != 'f' and re.grade != 'F':
+                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str(i+1)+''+str(y+1),'check':1})
+                    else:
+                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str(i+1)+''+str(y+1),'check':-1})
+                    
+        
+        if boolBrake:
+            break
+
+
     for r in RegisSub:
         if r.grade != "f" and r.grade != "F":
             JSONPass.append({"id":r.subject.id_subject})
@@ -317,7 +346,7 @@ def algorithm(token):
             return '<{} : {} : {} : {}>'.format(self.year, self.term, self.subject, self.credit)
 
 
-    arrRegis = []
+    
     notPassed = []
     passed = []
     for i in allSub:
@@ -330,19 +359,10 @@ def algorithm(token):
 
     notPassed.sort()
 
-    # print("pass: ")
-    # for i in passed:
-    #     txt = "{}(w={}),"
-    #     print(txt.format(i.id_sub, i.weight))
-
-    # print("not pass: ")
-    # for i in notPassed:
-    #     txt = "{}(w={}),"
-    #     print(txt.format(i.id_sub, i.weight))
-
     countYear = currentYear
     kkk = 0
     countTerm = 1
+    boolBrake = False
     while countYear <= 8:
 
         if len(notPassed) == 0:
@@ -359,14 +379,6 @@ def algorithm(token):
             if len(notPassed) == 0:
                 break
 
-            # if countTerm == 3 :
-            #     check = 0
-            #     for x in notPassed :
-            #         if x.year <= countYear and x.term[2] :
-            #             check = 1
-
-            #     if check == 0:
-            #         break
 
             termRegister = TermRegister()
             termRegister.year = countYear
@@ -405,11 +417,28 @@ def algorithm(token):
                     passed.append(x)
                     notPassed.remove(x)
 
-            print(termRegister)
+            
+            if termRegister.credit != 0:
+                for re in termRegister.subject:
+                    arrRegis.append({'text':re.id_sub+' '+re.name,'group':str(countYear)+''+str(countTerm),'check':0})
+                
 
-            arrRegis.append(termRegister)
+                groupTerm.append({ 'key':str(countYear)+''+str(countTerm), 'isGroup': 'true', 'text': "เทอม"+str(countTerm), 'group': countYear })
+                #print(termRegister)
+            
             countTerm += 1
+        if boolBrake :
+            groupYaer.append({'key': countYear, 'isGroup': 'true', 'text': "ปีการศึกษาปีที่ "+str(countYear), 'horiz': 'true'})
 
+        boolBrake = True    
         countYear += 1
-    print("sdfsdfsdfs")    
-    print(arrRegis)
+    # print("***************************")    
+    # print(groupYaer)
+    # print("***************************")    
+    # print(groupTerm)
+    # print("***************************")    
+    # print(arrRegis)
+    return groupYaer+groupTerm+arrRegis
+    
+    
+
