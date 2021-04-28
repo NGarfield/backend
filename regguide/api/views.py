@@ -276,7 +276,7 @@ def getOptionSubject(requset):
         for s in subject3:
             subject31.append({'id':s.subject.id_subject,'name':s.subject.subjectName,'credit':s.subject.credit})
         subject31 = list(subject31)
-        return JsonResponse({'free':subject11,'sci':subject21,'general':subject31,'com':subject41}, safe=False)
+        return JsonResponse({'free':subject11,'sci':subject21,'general':subject31,'maj':subject41}, safe=False)
 
 
 @csrf_exempt
