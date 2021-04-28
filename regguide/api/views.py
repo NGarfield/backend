@@ -253,28 +253,28 @@ def getOptionSubject(requset):
         subject4 = OptionSubject.objects.filter(deparment=student.deparment_id)
         subject41 = []
         for s in subject4:
-            subject41.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+            subject41.append({'id':s.subject.id_subject,'name':s.subject.subjectName,'credit':s.subject.credit})
         subject41 = list(subject41)
 
         g1 = GroupSubject.objects.filter(name_group = "เสรี").first()
         subject1 = OptionSubject.objects.filter(group=g1)
         subject11 = []
         for s in subject1:
-            subject11.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+            subject11.append({'id':s.subject.id_subject,'name':s.subject.subjectName,'credit':s.subject.credit})
         subject11 = list(subject11)
 
         g2 = GroupSubject.objects.filter(name_group = "กำหนดโดยคณะวิทยาศาสตร์").first()
         subject2 = OptionSubject.objects.filter(group=g2)
         subject21 = []
         for s in subject2:
-            subject21.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+            subject21.append({'id':s.subject.id_subject,'name':s.subject.subjectName,'credit':s.subject.credit})
         subject21 = list(subject21)
 
         g3 = GroupSubject.objects.filter(name_group = "ศึกษาทั่วไป").first()
         subject3 = OptionSubject.objects.filter(group=g3)
         subject31 = []
         for s in subject3:
-            subject31.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+            subject31.append({'id':s.subject.id_subject,'name':s.subject.subjectName,'credit':s.subject.credit})
         subject31 = list(subject31)
         return JsonResponse({'free':subject11,'sci':subject21,'general':subject31,'com':subject41}, safe=False)
 
