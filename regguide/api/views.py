@@ -1,6 +1,6 @@
 from rest_framework import generics
 from regguide.models import (Subject, UserLogin, Student, Faculty, Deparment, Calender, PreSubject, CourseSubject, RegisterSubject,
-                             PreSubject,ConditionJSON,DateSystem)
+                             PreSubject,ConditionJSON,DateSystem,GroupSubject,OptionSubject)
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -25,7 +25,7 @@ def SubjectListCreateAPIView(request):
         queryset = Subject.objects.all()
         print(queryset)
         data3 = list(queryset.values())
-        return JsonResponse(data3, safe=False)
+        return JsonResponse({'subject':data3}, safe=False)
 
 
 @csrf_exempt
@@ -219,6 +219,7 @@ def getCourseStudent(requset):
         return JsonResponse({"nodeDataArray": data_allsubject1}, safe=False)
 
 
+
 @csrf_exempt
 def getConditionSubject(requset):
     if requset.method == "POST":
@@ -241,6 +242,42 @@ def getConditionSubject(requset):
 
         all_presubject1 = list(all_presubject)
         return JsonResponse({"linkDataArray": all_presubject1}, safe=False)
+
+@csrf_exempt
+def getOptionSubject(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        userlogin = UserLogin.objects.filter(token=token).first()
+        student = Student.objects.filter(id_student=userlogin.username).first()
+        subject4 = OptionSubject.objects.filter(deparment=student.deparment_id)
+        subject41 = []
+        for s in subject4:
+            subject41.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+        subject41 = list(subject41)
+
+        g1 = GroupSubject.objects.filter(name_group = "เสรี").first()
+        subject1 = OptionSubject.objects.filter(group=g1)
+        subject11 = []
+        for s in subject1:
+            subject11.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+        subject11 = list(subject11)
+
+        g2 = GroupSubject.objects.filter(name_group = "กำหนดโดยคณะวิทยาศาสตร์").first()
+        subject2 = OptionSubject.objects.filter(group=g2)
+        subject21 = []
+        for s in subject2:
+            subject21.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+        subject21 = list(subject21)
+
+        g3 = GroupSubject.objects.filter(name_group = "ศึกษาทั่วไป").first()
+        subject3 = OptionSubject.objects.filter(group=g3)
+        subject31 = []
+        for s in subject3:
+            subject31.append({'id':s.subject.id_subject,'name':s.subject.subjectName})
+        subject31 = list(subject31)
+        return JsonResponse({'free':subject11,'sci':subject21,'general':subject31,'com':subject41}, safe=False)
+
 
 @csrf_exempt
 def getGuide(requset):
@@ -424,7 +461,7 @@ def algorithm(token):
                 
 
                 groupTerm.append({ 'key':str(countYear)+''+str(countTerm), 'isGroup': 'true', 'text': "เทอม"+str(countTerm), 'group': countYear })
-                #print(termRegister)
+                print(termRegister)
             
             countTerm += 1
         if boolBrake :

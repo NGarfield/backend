@@ -11,7 +11,9 @@ from regguide.models import (Subject,
                             ConditionJSON,
                             RegisterSubject,
                             CourseSubject,
-                            DateSystem)
+                            DateSystem,
+                            OptionSubject,
+                            GroupSubject)
 
 admin.site.register(Subject)
 admin.site.register(PreSubject)
@@ -26,3 +28,5 @@ admin.site.register(ConditionJSON)
 admin.site.register(RegisterSubject)
 admin.site.register(CourseSubject)
 admin.site.register(DateSystem)
+admin.site.register(OptionSubject)
+admin.site.register(GroupSubject)

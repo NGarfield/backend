@@ -110,3 +110,21 @@ class DateSystem(models.Model):
     system_term = models.IntegerField()
     def __str__(self):
         return f"{self.system_yaer} {self.system_term}"
+
+class GroupSubject(models.Model):
+    name_group = models.CharField(max_length=200)
+    credit = models.IntegerField()
+    deparment = models.ForeignKey(Deparment, on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.name_group} {self.deparment}"
+
+class OptionSubject(models.Model):
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    group = models.ForeignKey(GroupSubject, on_delete=models.CASCADE)
+    deparment = models.ForeignKey(Deparment,on_delete=models.CASCADE)
+    def __str__(self):
+        return f"{self.subject} {self.group} {self.deparment}"
+
+class AllImage(models.Model):
+    page = models.IntegerField()
+    image = models.TextField()
