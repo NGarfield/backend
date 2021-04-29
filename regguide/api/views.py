@@ -60,6 +60,8 @@ def login(request):
                 mytoken[request.session['session']] = data.token
 
             return redirect("http://127.0.0.1:8080/")
+        else:
+            return render(request, 'login.html', {'form': LoginForm})
 
     if request.method == "GET":
         request.session['session'] = request.GET['session']
@@ -362,7 +364,7 @@ def algorithm(token):
 
 
     for r in RegisSub:
-        if r.grade != "f" and r.grade != "F":
+        if r.grade != "f" and r.grade != "F" and r.grade != "-":
             JSONPass.append({"id":r.subject.id_subject})
         
 
