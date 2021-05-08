@@ -128,7 +128,7 @@ def getCalender(requset):
     if requset.method == "GET":
         timenow = datetime.datetime.now()
         time30d = datetime.datetime.now() + datetime.timedelta(days=150)
-        data = Calender.objects.filter(end_date__range=(timenow, time30d))
+        data = Calender.objects.filter(end_date__range=(timenow, time30d)).order_by('start_date')
         arDate = []
         i = 0
         for d in data:
