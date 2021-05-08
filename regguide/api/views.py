@@ -1,6 +1,6 @@
 from rest_framework import generics
 from regguide.models import (Subject, UserLogin, Student, Faculty, Deparment, Calender, PreSubject, CourseSubject, RegisterSubject,
-                             PreSubject,ConditionJSON,DateSystem,GroupSubject,OptionSubject)
+                             PreSubject,ConditionJSON,DateSystem,GroupSubject,OptionSubject,TestSubject)
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -129,8 +129,80 @@ def getCalender(requset):
         timenow = datetime.datetime.now()
         time30d = datetime.datetime.now() + datetime.timedelta(days=150)
         data = Calender.objects.filter(end_date__range=(timenow, time30d))
-        data_date = list(data.values())
+        arDate = []
+        i = 0
+        for d in data:
+            arDate.append({"id":i,"title":d.title,"start_date":d.start_date,"end_date":d.end_date})
+            i += 1
+        data_date = list(arDate)
         return JsonResponse({"date": data_date}, safe=False)
+
+@csrf_exempt
+def getStudyResults(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        userlogin = UserLogin.objects.filter(token=token).first()
+        all_regissubject = []
+        student = Student.objects.filter(id_student=userlogin.username).first()
+        dateSystem = DateSystem.objects.all().first()
+        entryYear = student.yaer_of_entry
+        currentTerm = dateSystem.system_term
+        boo = False
+
+        while entryYear <= dateSystem.system_yaer:
+            for i in range(3):
+                if (i+1) == currentTerm and dateSystem.system_yaer <= entryYear:
+                    boo = True
+                    break
+                regis = RegisterSubject.objects.filter(student=student,yaer=entryYear,term=i+1)
+                sub = []
+                if regis:
+                    for re in regis:
+                        sub.append({'id':re.subject.id_subject,'name':re.subject.subjectName,'credit':re.subject.credit,'grade':re.grade})
+                all_regissubject.append({'year':entryYear,'term':i+1,'id_subject':sub})
+        
+            if boo :
+                break
+            entryYear += 1
+        all_regissubject1 = list(all_regissubject)
+        return JsonResponse({'subject':all_regissubject1}, safe=False)
+
+
+@csrf_exempt
+def getTestSubject(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        userlogin = UserLogin.objects.filter(token=token).first()
+        student = Student.objects.filter(id_student=userlogin.username).first()
+        dateSystem = DateSystem.objects.all().first()
+        dateyear = dateSystem.system_yaer
+        allSub = [] 
+        boo = False
+        while dateyear >= student.yaer_of_entry:
+            term = 3
+            while term > 0 :
+                
+                regis = RegisterSubject.objects.filter(student=student,yaer=dateyear,term=term)
+                if regis:
+                    print (dateyear)
+                    print (term)
+                    for re in regis:
+                        sub = TestSubject.objects.filter(subject=re.subject)
+                        for s in sub:
+                            allSub.append({"titel" : s.subject.subjectName ,"start":s.start_date,"end":s.end_date,"description":s.room})
+                    boo = True
+                    break
+                else:
+                    term -= 1
+
+            if boo :
+                break
+            dateyear -= 1
+        allS = list(allSub)
+        return JsonResponse({'subject' : allS},safe=False)
+        
 
 
 @csrf_exempt
