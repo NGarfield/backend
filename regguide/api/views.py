@@ -191,7 +191,7 @@ def getTestSubject(requset):
                     for re in regis:
                         sub = TestSubject.objects.filter(subject=re.subject)
                         for s in sub:
-                            allSub.append({"titel" : s.subject.subjectName ,"start":s.start_date,"end":s.end_date,"description":s.room})
+                            allSub.append({"title" : s.subject.subjectName ,"start":s.start_date,"end":s.end_date,"description":s.room})
                     boo = True
                     break
                 else:
