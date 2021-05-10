@@ -65,8 +65,10 @@ class TestSubject(models.Model):
     midterm = models.BooleanField(blank=True)
     finalterm = models.BooleanField(blank=True)
     room = models.CharField(max_length=50,blank=True)
+    term = models.IntegerField(null=True)
+    yaer = models.IntegerField(null=True)
     def __str__(self):
-        return f"{self.subject}"
+        return f"{self.subject} {self.term} {self.yaer}"
 
 class Calender(models.Model):
     title = models.CharField(max_length=50)

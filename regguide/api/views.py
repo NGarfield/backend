@@ -160,7 +160,7 @@ def getStudyResults(requset):
                 if regis:
                     for re in regis:
                         sub.append({'id':re.subject.id_subject,'name':re.subject.subjectName,'credit':re.subject.credit,'grade':re.grade})
-                all_regissubject.append({'year':entryYear,'term':i+1,'id_subject':sub})
+                    all_regissubject.append({'year':entryYear,'term':i+1,'id_subject':sub})
         
             if boo :
                 break
@@ -268,10 +268,17 @@ def getCourseStudent(requset):
             if(len(register)>1):
                 boo = True
                 for re in register:
-                    if re.grade != "f" and  re.grade !="F" and re.grade !="-" and re.grade !="W" and re.grade !="w":
+                    if (re.grade != "f" and  re.grade !="F" and re.grade !="-" and 
+                    re.grade !="W" and re.grade !="w" and re.grade != "i" and re.grade != "I") :
                         data_subject.update({"grade": 1})
                         boo = False
                         break
+
+                    elif re.grade == "-" or re.grade =="i" or re.grade == "I":
+                        data_subject.update({"grade": -2})
+                        boo = False
+                        break
+                        
                 
                 if boo :
                     data_subject.update({"grade": -1})
@@ -282,7 +289,7 @@ def getCourseStudent(requset):
                     data_subject.update({"grade": -1})
 
                 elif register[0].grade == "-" or register[0].grade == "i" or register[0].grade == "I":
-                    data_subject.update({"grade": 0})
+                    data_subject.update({"grade": -2})
 
                 else:
                     data_subject.update({"grade": 1})
@@ -414,38 +421,19 @@ def algorithm(token):
     JSONPass = []
     arrRegis = []
 
-    boolBrake = False
-    for i in range(currentYear):
-        groupYaer.append({'key' : i+1 , 'isGroup' : 'true' ,'text' : 'ปีการศึกษาปีที่ '+str(i+1) , 'horiz': 'true'})
-        for y in range(3):
-            if i+1 == currentYear and y+1 == currentTerm:
-                boolBrake = True
-                break
-
-            register = RegisterSubject.objects.filter(student=student, yaer=date.system_yaer-(i), term=y+1)
-            print("**************")
-            print(date.system_yaer-(i))
-            print(y+1)
-            if register:
-                print("----------------")
-                print(date.system_yaer-(i))
-                print(y+1)
-                groupTerm.append({ 'key':str((date.system_yaer-i-student.yaer_of_entry+1))+''+str(y+1), 'isGroup': 'true', 'text': "เทอม"+str(y+1), 'group': str((date.system_yaer-i-student.yaer_of_entry+1)) })
-                
-                for re in register:
-                    if re.grade != 'f' and re.grade != 'F' and re.grade != 'W'and re.grade != 'w':
-                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str((date.system_yaer-i-student.yaer_of_entry+1))+''+str(y+1),'check':1})
-                    else:
-                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str((date.system_yaer-i-student.yaer_of_entry+1))+''+str(y+1),'check':-1})
-                    
-        
-        if boolBrake:
-            break
+    
 
 
     for r in RegisSub:
-        if r.grade != "f" and r.grade != "F" and r.grade != "-" and r.grade != "W" and r.grade != "w":
-            JSONPass.append({"id":r.subject.id_subject})
+        if r.grade != "f" and r.grade != "F" and r.grade != "W" and r.grade != "w" and r.grade != "U":
+            if r.grade == "-" or r.grade == "I" or r.grade == "i":
+                if r.yaer < dateSystem.system_yaer:
+                    JSONPass.append({"id":r.subject.id_subject})
+
+                elif r.yaer == dateSystem.system_yaer and r.term < dateSystem.system_term:
+                    JSONPass.append({"id":r.subject.id_subject})
+            else:
+                JSONPass.append({"id":r.subject.id_subject})
         
 
     for i in JSONPass:
@@ -474,6 +462,53 @@ def algorithm(token):
 
         else:
             notPassed.append(i)
+
+    boolBrake = False
+    # boolBrake1 = True
+    for i in range(currentYear):
+        # register1 = RegisterSubject.objects.filter(student=student, yaer=student.yaer_of_entry + i)
+        # if register1:
+        if i+1 == currentYear and len(notPassed)<1:
+            reSub1 = RegisterSubject.objects.filter(student=student, yaer=student.yaer_of_entry + i, term=1)
+            reSub2 = RegisterSubject.objects.filter(student=student, yaer=student.yaer_of_entry + i, term=1)
+            reSub3 = RegisterSubject.objects.filter(student=student, yaer=student.yaer_of_entry + i, term=1)
+            
+            if reSub1 or reSub2 or reSub3:
+                groupYaer.append({'key' : i+1 , 'isGroup' : 'true' ,'text' : 'ปีการศึกษาปีที่ '+str(i+1) , 'horiz': 'true'})
+        
+        else:
+            groupYaer.append({'key' : i+1 , 'isGroup' : 'true' ,'text' : 'ปีการศึกษาปีที่ '+str(i+1) , 'horiz': 'true'})
+            # boolBrake1 = False
+        for y in range(3):
+            if i+1 == currentYear and y+1 == currentTerm:
+                boolBrake = True
+                break
+
+            register = RegisterSubject.objects.filter(student=student, yaer=student.yaer_of_entry + i, term=y+1)
+            print("**************")
+            print(student.yaer_of_entry + i)
+            print(y+1)
+            if register:
+                print("----------------")
+                print(student.yaer_of_entry + i)
+                print(y+1)
+                groupTerm.append({ 'key':str(i+1)+''+str(y+1), 'isGroup': 'true', 'text': "เทอม"+str(y+1), 'group': str(i+1) })
+                
+                for re in register:
+                    if re.grade != 'f' and re.grade != 'F' and re.grade != 'W'and re.grade != 'w'and re.grade != 'i'and re.grade != 'I'and re.grade != '-':
+                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str(i+1)+''+str(y+1),'check':1})
+                    
+                    elif re.grade == 'i' or re.grade == 'I' or re.grade == '-':
+                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str(i+1)+''+str(y+1),'check':-2}) 
+            
+                    
+                    else:
+                        arrRegis.append({'text':re.subject.id_subject+' '+re.subject.subjectName,'group':str(i+1)+''+str(y+1),'check':-1})
+            
+                    
+        
+        if boolBrake:
+            break
 
 
     notPassed.sort()
