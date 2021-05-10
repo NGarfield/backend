@@ -96,7 +96,7 @@ class RegisterSubject(models.Model):
     yaer = models.IntegerField(null=True)
     term = models.IntegerField(null=True)
     def __str__(self):
-        return f"{self.student} {self.subject}"
+        return f"{self.student} {self.subject} {self.yaer} {self.term}"
 
 class CourseSubject(models.Model):
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
