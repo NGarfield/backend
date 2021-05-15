@@ -54,8 +54,11 @@ class TimetableSubject(models.Model):
     subject = models.ForeignKey(Subject,on_delete=models.CASCADE)
     start_date = models.DateTimeField(blank=True)
     end_date = models.DateTimeField(blank=True)
+    room = models.CharField(max_length=50,blank=True)
+    term = models.IntegerField(null=True)
+    yaer = models.IntegerField(null=True)
     def __str__(self):
-        return self.subject
+        return f"{self.subject}"
     
 
 class TestSubject(models.Model):
@@ -111,6 +114,8 @@ class DateSystem(models.Model):
     id_date = models.CharField(max_length=1,primary_key=True)
     system_yaer = models.IntegerField()
     system_term = models.IntegerField()
+    end_date = models.DateTimeField(null=True)
+    
     def __str__(self):
         return f"{self.system_yaer} {self.system_term}"
 

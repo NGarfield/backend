@@ -1,6 +1,6 @@
 from rest_framework import generics
 from regguide.models import (Subject, UserLogin, Student, Faculty, Deparment, Calender, PreSubject, CourseSubject, RegisterSubject,
-                             PreSubject,ConditionJSON,DateSystem,GroupSubject,OptionSubject,TestSubject)
+                             PreSubject,ConditionJSON,DateSystem,GroupSubject,OptionSubject,TestSubject,TimetableSubject)
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
@@ -170,13 +170,38 @@ def getStudyResults(requset):
 
 
 @csrf_exempt
+def getTableSubject(requset):
+    if requset.method == "POST":
+        tokenjson = json.loads(requset.body)
+        token = tokenjson['token']
+        userlogin = UserLogin.objects.filter(token=token).first()
+        student = Student.objects.filter(id_student=userlogin.username).first()
+        dateSystem = DateSystem.objects.get(id_date=2)
+        regis = RegisterSubject.objects.filter(student=student,yaer=dateSystem.system_yaer,term=dateSystem.system_term)
+        allSub = [] 
+        for re in regis :
+            test = TimetableSubject.objects.filter(subject=re.subject)
+            for te in test:
+                starttime = te.start_date
+                endtime = te.end_date
+                stoptime = dateSystem.end_date
+                while starttime < stoptime :
+                    allSub.append({"title" : te.subject.subjectName ,"start":starttime,"end":endtime,"description":te.room})
+                    starttime += datetime.timedelta(days=7)
+                    endtime += datetime.timedelta(days=7)
+        allS = list(allSub)
+        return JsonResponse({'subject' : allS},safe=False)
+
+
+
+@csrf_exempt
 def getTestSubject(requset):
     if requset.method == "POST":
         tokenjson = json.loads(requset.body)
         token = tokenjson['token']
         userlogin = UserLogin.objects.filter(token=token).first()
         student = Student.objects.filter(id_student=userlogin.username).first()
-        dateSystem = DateSystem.objects.all().first()
+        dateSystem = DateSystem.objects.get(id_date=2)
         dateyear = dateSystem.system_yaer
         allSub = [] 
         boo = False
@@ -188,6 +213,7 @@ def getTestSubject(requset):
                 if regis:
                     print (dateyear)
                     print (term)
+                
                     for re in regis:
                         sub = TestSubject.objects.filter(subject=re.subject)
                         for s in sub:
