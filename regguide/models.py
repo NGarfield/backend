@@ -136,3 +136,5 @@ class OptionSubject(models.Model):
 class AllImage(models.Model):
     page = models.IntegerField()
     image = models.TextField()
+    def __str__(self):
+        return f"{self.page} {self.image}"

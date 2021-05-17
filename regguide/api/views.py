@@ -99,10 +99,10 @@ def getUser(requset):
         mydata = json.loads(requset.body)
         data = UserLogin.objects.filter(token=mydata['token'])
         data_student = Student.objects.filter(id_student=data[0])
-        data_student1 = data_student[0].student_name + \
-            " "+data_student[0].student_surname
+        data_student2 = Student.objects.filter(id_student=data[0]).first()
+        data_student1 = data_student[0].student_name + " "+data_student[0].student_surname
         data1 = list(data.values())
-        return JsonResponse({"id_user": data1, "name": data_student1}, safe=False)
+        return JsonResponse({"id_user": data1, "name": data_student1 , "choose" : data_student2.deparment_id.deparment_name}, safe=False)
 
 
 @csrf_exempt
