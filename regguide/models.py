@@ -83,6 +83,7 @@ class Calender(models.Model):
 class ConditionJSON(models.Model):
     deparment = models.ForeignKey(Deparment, on_delete=models.CASCADE)
     conditionJSON = models.TextField(default="")
+    choose = models.IntegerField(null=True)
     def __str__(self):
         return f"{self.deparment}"
     
