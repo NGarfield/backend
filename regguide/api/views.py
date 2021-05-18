@@ -394,13 +394,13 @@ def getGuide(requset):
     if requset.method == "POST":
         tokenjson = json.loads(requset.body)
         token = tokenjson['token']
-        # choose = tokenjson['choose']
-        nodeSubject = algorithm(token)
+        choose = tokenjson['choose']
+        nodeSubject = algorithm(token,choose)
         nodeSubject1 = list(nodeSubject)
         return JsonResponse({'nodeSubject':nodeSubject1}, safe=False)
 
 
-def algorithm(token):
+def algorithm(token,choose):
     class Subject():
 
         def __init__(self, id_sub, name, weight, stet,
@@ -427,7 +427,7 @@ def algorithm(token):
     allSub = []
     userlogin = UserLogin.objects.filter(token=token).first()
     student = Student.objects.filter(id_student=userlogin.username).first()
-    con = ConditionJSON.objects.filter(deparment=student.deparment_id).first()
+    con = ConditionJSON.objects.filter(deparment=student.deparment_id,choose=choose).first()
     inputCourseJSON = con.conditionJSON
     courseJSON = json.loads(inputCourseJSON)
     for s in courseJSON:
