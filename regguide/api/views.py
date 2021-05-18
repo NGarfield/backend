@@ -394,6 +394,7 @@ def getGuide(requset):
     if requset.method == "POST":
         tokenjson = json.loads(requset.body)
         token = tokenjson['token']
+        # choose = tokenjson['choose']
         nodeSubject = algorithm(token)
         nodeSubject1 = list(nodeSubject)
         return JsonResponse({'nodeSubject':nodeSubject1}, safe=False)
@@ -511,13 +512,13 @@ def algorithm(token):
                 break
 
             register = RegisterSubject.objects.filter(student=student, yaer=student.yaer_of_entry + i, term=y+1)
-            print("**************")
-            print(student.yaer_of_entry + i)
-            print(y+1)
+            # print("**************")
+            # print(student.yaer_of_entry + i)
+            # print(y+1)
             if register:
-                print("----------------")
-                print(student.yaer_of_entry + i)
-                print(y+1)
+                # print("----------------")
+                # print(student.yaer_of_entry + i)
+                # print(y+1)
                 groupTerm.append({ 'key':str(i+1)+''+str(y+1), 'isGroup': 'true', 'text': "เทอม"+str(y+1), 'group': str(i+1) })
                 
                 for re in register:
@@ -600,7 +601,11 @@ def algorithm(token):
             
             if termRegister.credit != 0:
                 for re in termRegister.subject:
-                    arrRegis.append({'text':re.id_sub+' '+re.name,'group':str(countYear)+''+str(countTerm),'check':0})
+                    if len(re.condition)>0 and re.condition[0] == "#":
+                        arrRegis.append({'text':re.id_sub+' '+re.name,'group':str(countYear)+''+str(countTerm),'check':2})
+                    
+                    else:
+                        arrRegis.append({'text':re.id_sub+' '+re.name,'group':str(countYear)+''+str(countTerm),'check':0})
                 
 
                 groupTerm.append({ 'key':str(countYear)+''+str(countTerm), 'isGroup': 'true', 'text': "เทอม"+str(countTerm), 'group': countYear })
