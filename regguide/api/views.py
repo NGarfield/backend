@@ -236,6 +236,7 @@ def getCourseStudent(requset):
     if requset.method == "POST":
         tokenjson = json.loads(requset.body)
         token = tokenjson['token']
+        choose = tokenjson['choose']
         userlogin = UserLogin.objects.filter(token=token).first()
         data_allsubject = [{
             "key": 11,
@@ -280,7 +281,7 @@ def getCourseStudent(requset):
 
         student = Student.objects.filter(id_student=userlogin.username).first()
         all_subject = CourseSubject.objects.filter(
-            deparment=student.deparment_id)
+            deparment=student.deparment_id,choose=choose)
         for a in all_subject:
             data_subject = {}
             key = Subject.objects.filter(
@@ -335,11 +336,12 @@ def getConditionSubject(requset):
     if requset.method == "POST":
         tokenjson = json.loads(requset.body)
         token = tokenjson['token']
+        choose = tokenjson['choose']
         userlogin = UserLogin.objects.filter(token=token).first()
         all_presubject = []
         student = Student.objects.filter(id_student=userlogin.username).first()
         all_subject = CourseSubject.objects.filter(
-            deparment=student.deparment_id)
+            deparment=student.deparment_id,choose=choose)
         for a in all_subject:
             con = PreSubject.objects.filter(condition=a.subject.id_subject)
 
