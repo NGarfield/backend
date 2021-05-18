@@ -547,7 +547,7 @@ def algorithm(token,choose):
     countTerm = 1
     boolBrake = False
     while countYear <= 8:
-
+        print(notPassed)
         if len(notPassed) == 0:
             break
 
