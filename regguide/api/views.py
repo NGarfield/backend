@@ -186,7 +186,7 @@ def getTableSubject(requset):
                 endtime = te.end_date
                 stoptime = dateSystem.end_date
                 while starttime < stoptime :
-                    allSub.append({"title" : te.subject.subjectName ,"start":starttime,"end":endtime,"description":te.room})
+                    allSub.append({"title" : "ห้องเรียน " +te.room+ " วิชา"+te.subject.subjectName ,"start":starttime,"end":endtime,"description":te.room})
                     starttime += datetime.timedelta(days=7)
                     endtime += datetime.timedelta(days=7)
         allS = list(allSub)
@@ -217,7 +217,7 @@ def getTestSubject(requset):
                     for re in regis:
                         sub = TestSubject.objects.filter(subject=re.subject)
                         for s in sub:
-                            allSub.append({"title" : s.subject.subjectName ,"start":s.start_date,"end":s.end_date,"description":s.room})
+                            allSub.append({"title" : "ห้องสอบ "+s.room+" วิชา "+s.subject.subjectName ,"start":s.start_date,"end":s.end_date,"description":s.room})
                     boo = True
                     break
                 else:
@@ -227,6 +227,7 @@ def getTestSubject(requset):
                 break
             dateyear -= 1
         allS = list(allSub)
+        print(allSub)
         return JsonResponse({'subject' : allS},safe=False)
         
 
